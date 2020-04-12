@@ -19,6 +19,9 @@ const IndexPage = ({ data }) => {
 
             <h1>{home.headline}</h1>
           </header>
+          <blockquote>
+            <p>{home.long_text_1}</p>
+          </blockquote>
           <img src={home.hero_image} />
 
           <a href="#" className="button">
