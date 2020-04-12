@@ -74,6 +74,7 @@ export const query = graphql`
           customer_logos {
             logo_image
           }
+          long_text_1
           hero_image
           call_to_action
         }
