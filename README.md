@@ -1,87 +1,18 @@
-# gatsby-casper
+# gatsby-starter-strata
 
-Demo: https://gatsby-casper.netlify.com/  
+**This is a starter for Gatsby.js V2.**
 
-This is a static blog generator and starter gatsby repo. A port of [Casper](https://github.com/TryGhost/Casper) v2 a theme from [Ghost](https://ghost.org/) for [GatsbyJS](https://www.gatsbyjs.org/) using [TypeScript](https://www.typescriptlang.org/).
+**The older V1 version of this starter can be found on the v1 branch**
 
-## Getting Started
-Clone this repo.
+Gatsby starter based on the Strata site template, designed by [HTML5 UP](https://html5up.net/strata). Check out https://codebushi.com/gatsby-starters-and-themes/ for more Gatsby starters and templates.
 
-```
-git clone https://github.com/scttcper/gatsby-casper.git --depth=1
-```
+## Preview
 
-Remove .git folder and setup a new one
+http://gatsby-strata.surge.sh/
 
-```
-rm -rf .git && git init
-```
+## Installation
 
-Edit website-config.ts with your website settings.
-Either disable subscribe or setup a mailchimp list and add the form action and hidden field input name.
+Install this starter (assuming Gatsby is installed) by running from your CLI:
+`gatsby new gatsby-starter-strata https://github.com/codebushi/gatsby-starter-strata`
 
-Now push to whatever repo you want!
-
-
-### Progress
-- [x] emotion / component styles
-- [x] home page
-- [x] tag page
-- [x] author page
-- [x] blog page
-  - [x] subscribe form - using [mailchimp](https://mailchimp.com)
-  - [ ] full width images in markdown? - not sure if possible
-  - [ ] multiple post authors
-  - [ ] floating reading progress bar
-- [x] 404 page
-- [x] subscribe modal/overlay
-- [x] rss feed (on production build)
-- [x] polish ✨
-  - [x] meta tags
-  - [x] page titles
-  - [x] pagination
-
-### Deploy to Netlify
-
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/scttcper/gatsby-casper)
-
-## How to configure Google Analytics
-Edit `gatsby-config.js` and add your tracking ID
-
-
-```javascript
-{
-    resolve: `gatsby-plugin-google-analytics`,
-    options: {
-      // Here goes your tracking ID
-      trackingId: 'UA-XXXX-Y',
-      // Puts tracking script in the head instead of the body
-      head: true,
-      // IP anonymization for GDPR compliance
-      anonymize: true,
-      // Disable analytics for users with `Do Not Track` enabled
-      respectDNT: true,
-      // Avoids sending pageview hits from custom paths
-      exclude: ['/preview/**'],
-      // Specifies what percentage of users should be tracked
-      sampleRate: 100,
-      // Determines how often site speed tracking beacons will be sent
-      siteSpeedSampleRate: 10,
-    },
-  },
-```
-
-## How to edit your site title and description
-Edit `gatsby-config.js` section `siteMetadata`
-
-```javascript
- siteMetadata: {
-    title: 'My awesome site name',
-    description: 'This is a description for my site',
-    siteUrl: 'https://mysite.com', // full path to blog - no ending slash
-  },
-```
-
-## How to adjust pagination
-In `gatsby-node.js`, edit the `postsPerPage` constant. The default value is
-six posts per page.
+Run `gatsby develop` in the terminal to start.

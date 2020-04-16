@@ -82,6 +82,7 @@ const NotFoundPage: React.FC<NotFoundTemplateProps> = props => {
             </section>
           </div>
         </main>
+{/*
         <aside css={outer}>
           <div css={inner}>
             <div css={PostFeed}>
@@ -91,6 +92,7 @@ const NotFoundPage: React.FC<NotFoundTemplateProps> = props => {
             </div>
           </div>
         </aside>
+*/}
       </Wrapper>
     </IndexLayout>
   );
@@ -98,6 +100,7 @@ const NotFoundPage: React.FC<NotFoundTemplateProps> = props => {
 
 export default NotFoundPage;
 
+/*
 export const pageQuery = graphql`
   query {
     allMarkdownRemark(limit: 3, sort: { fields: [frontmatter___date], order: DESC }) {
@@ -139,3 +142,4 @@ export const pageQuery = graphql`
     }
   }
 `;
+*/

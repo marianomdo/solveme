@@ -179,15 +179,16 @@ interface PageTemplateProps {
 export interface PageContext {
   excerpt: string;
   timeToRead: number;
-  fields: {
+  // fields: {
     slug: string;
-  };
-  frontmatter: {
-    image: {
-      childImageSharp: {
-        fluid: any;
-      };
-    };
+  // };
+  // frontmatter: {
+    image: string
+    // image: {
+    //   childImageSharp: {
+    //     fluid: any;
+    //   };
+    // };
     title: string;
     date: string;
     draft?: boolean;
@@ -203,23 +204,23 @@ export interface PageContext {
         }>;
       };
     };
-  };
+  // };
 }
 
 const PageTemplate: React.FC<PageTemplateProps> = props => {
-  const post = props.data.markdownRemark;
+  const post = props.data.allPosts;
   let width = '';
   let height = '';
-  if (post.frontmatter.image && post.frontmatter.image.childImageSharp) {
-    width = post.frontmatter.image.childImageSharp.fluid.sizes.split(', ')[1].split('px')[0];
-    height = String(Number(width) / post.frontmatter.image.childImageSharp.fluid.aspectRatio);
+  if (post.image && post.image.childImageSharp) {
+    width = post.image.childImageSharp.fluid.sizes.split(', ')[1].split('px')[0];
+    height = String(Number(width) / post.image.childImageSharp.fluid.aspectRatio);
   }
 
   return (
     <IndexLayout className="post-template">
       <Helmet>
         <html lang={config.lang} />
-        <title>{post.frontmatter.title}</title>
+        <title>{post.title}</title>
 
         <meta name="description" content={post.excerpt} />
         <meta property="og:site_name" content={config.title} />
@@ -227,7 +228,7 @@ const PageTemplate: React.FC<PageTemplateProps> = props => {
         <meta property="og:title" content={post.frontmatter.title} />
         <meta property="og:description" content={post.excerpt} />
         <meta property="og:url" content={config.siteUrl + props.pathContext.slug} />
-        {(post.frontmatter.image && post.frontmatter.image.childImageSharp) && (
+        {(post.frontmatter.image && post.image.childImageSharp) && (
           <meta property="og:image" content={`${config.siteUrl}${post.frontmatter.image.childImageSharp.fluid.src}`} />
         )}
         <meta property="article:published_time" content={post.frontmatter.date} />
@@ -328,65 +329,65 @@ const PageTemplate: React.FC<PageTemplateProps> = props => {
 
 export default PageTemplate;
 
-export const query = graphql`
-  query($slug: String, $primaryTag: String) {
-    logo: file(relativePath: { eq: "img/ghost-logo.png" }) {
-      childImageSharp {
-        fixed {
-          ...GatsbyImageSharpFixed
-        }
-      }
-    }
-    markdownRemark(fields: { slug: { eq: $slug } }) {
-      html
-      htmlAst
-      excerpt
-      timeToRead
-      frontmatter {
-        title
-        userDate: date(formatString: "D MMMM YYYY")
-        date
-        tags
-        image {
-          childImageSharp {
-            fluid(maxWidth: 3720) {
-              ...GatsbyImageSharpFluid
-            }
-          }
-        }
-        author {
-          id
-          bio
-          avatar {
-            children {
-              ... on ImageSharp {
-                fixed(quality: 90) {
-                  ...GatsbyImageSharpFixed
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    relatedPosts: allMarkdownRemark(
-      filter: { frontmatter: { tags: { in: [$primaryTag] }, draft: { ne: true } } }
-      limit: 3
-    ) {
-      totalCount
-      edges {
-        node {
-          id
-          timeToRead
-          excerpt
-          frontmatter {
-            title
-          }
-          fields {
-            slug
-          }
-        }
-      }
-    }
-  }
-`;
+// export const query = graphql`
+//   query($slug: String, $primaryTag: String) {
+//     logo: file(relativePath: { eq: "img/ghost-logo.png" }) {
+//       childImageSharp {
+//         fixed {
+//           ...GatsbyImageSharpFixed
+//         }
+//       }
+//     }
+//     markdownRemark(fields: { slug: { eq: $slug } }) {
+//       html
+//       htmlAst
+//       excerpt
+//       timeToRead
+//       frontmatter {
+//         title
+//         userDate: date(formatString: "D MMMM YYYY")
+//         date
+//         tags
+//         image {
+//           childImageSharp {
+//             fluid(maxWidth: 3720) {
+//               ...GatsbyImageSharpFluid
+//             }
+//           }
+//         }
+//         author {
+//           id
+//           bio
+//           avatar {
+//             children {
+//               ... on ImageSharp {
+//                 fixed(quality: 90) {
+//                   ...GatsbyImageSharpFixed
+//                 }
+//               }
+//             }
+//           }
+//         }
+//       }
+//     }
+//     relatedPosts: allMarkdownRemark(
+//       filter: { frontmatter: { tags: { in: [$primaryTag] }, draft: { ne: true } } }
+//       limit: 3
+//     ) {
+//       totalCount
+//       edges {
+//         node {
+//           id
+//           timeToRead
+//           excerpt
+//           frontmatter {
+//             title
+//           }
+//           fields {
+//             slug
+//           }
+//         }
+//       }
+//     }
+//   }
+// `;
