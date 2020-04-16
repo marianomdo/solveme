@@ -184,7 +184,7 @@ export interface PageContext {
   // };
   // frontmatter: {
     image: string
-    // image: {
+    // image: ++++{
     //   childImageSharp: {
     //     fluid: any;
     //   };

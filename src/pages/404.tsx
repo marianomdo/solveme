@@ -49,7 +49,7 @@ const ErrorLink = css`
 
 interface NotFoundTemplateProps {
   data: {
-    allMarkdownRemark: {
+    allPages: {
       totalCount: number;
       edges: Array<{
         node: PageContext;
@@ -59,7 +59,7 @@ interface NotFoundTemplateProps {
 }
 
 const NotFoundPage: React.FC<NotFoundTemplateProps> = props => {
-  const { edges } = props.data.allMarkdownRemark;
+  const { edges } = props.data.allPages;
 
   return (
     <IndexLayout>
@@ -82,23 +82,66 @@ const NotFoundPage: React.FC<NotFoundTemplateProps> = props => {
             </section>
           </div>
         </main>
-{/*
+
         <aside css={outer}>
           <div css={inner}>
             <div css={PostFeed}>
               {edges.map(({ node }) => (
-                <PostCard key={node.fields.slug} post={node} />
+                <PostCard key={node.slug} post={node} />
               ))}
             </div>
           </div>
         </aside>
-*/}
+
       </Wrapper>
     </IndexLayout>
   );
 };
 
 export default NotFoundPage;
+
+export const pageQuery = graphql`
+  query {
+    allPages: allButterPage(limit: 3, sort: { fields: [slug], order: DESC }) {
+      edges {
+        node {
+#          timeToRead
+            title
+#            date
+#            tags
+            image 
+#            image {
+#              childImageSharp {
+#                fluid(maxWidth: 3720) {
+#                  ...GatsbyImageSharpFluid
+#                }
+#              }
+#            }
+#            author {
+#              id
+#              bio
+#              avatar {
+#                children {
+#                  ... on ImageSharp {
+#                    fixed(quality: 90) {
+#                      src
+#                    }
+#                  }
+#                }
+#              }
+#            }
+#          }
+#          excerpt
+#          fields {
+#            layout
+            slug
+#          }
+        }
+      }
+    }
+  }
+`;
+
 
 /*
 export const pageQuery = graphql`
