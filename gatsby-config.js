@@ -12,13 +12,13 @@ module.exports = {
   plugins: [
     'gatsby-plugin-sitemap',
     'gatsby-plugin-sharp',
-    //{
-    //  resolve: 'gatsby-source-filesystem',
-    //  options: {
-    //    name: 'content',
-    //    path: path.join(__dirname, 'src', 'content'),
-    //  },
-    //},
+    {
+      resolve: 'gatsby-source-filesystem',
+      options: {
+        name: 'content',
+        path: path.join(__dirname, 'src', 'content'),
+      },
+    },
     {
       resolve: 'gatsby-transformer-remark',
       options: {
