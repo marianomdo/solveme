@@ -16,7 +16,7 @@ module.exports = {
         theme_color: '#663399',
         display: 'minimal-ui',
         icon: 'src/assets/images/website-icon.png', // This path is relative to the root of the site.
-      },                
+      },
     },
     'gatsby-plugin-sass',
     'gatsby-plugin-offline',
@@ -38,7 +38,14 @@ module.exports = {
         postCssPlugins: [require('postcss-color-function'), require('cssnano')()],
       },
     },
-
+    `gatsby-plugin-sharp`,
+    `gatsby-transformer-sharp`,
+    {
+      resolve: `gatsby-source-filesystem`,
+      options: {
+        path: `${__dirname}/src/data/`,
+      },
+    },
     /*'gatsby-source-buttercms', */{
       resolve: `gatsby-source-buttercms`,
       options: {
@@ -50,7 +57,7 @@ module.exports = {
         //  test: 0,
         //},
         //// Optional. Array of page types.
-        //pageTypes: [`page_type_key`],
+        pageTypes: [`index`], // `*` included always
         //// Optional array of locales (if configured in your account)
         //locales: [`en`, `es`, `fr`]
       },

@@ -198,22 +198,24 @@ export interface PostCardProps {
 
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
+  console.log('post:', post);
+
   return (
     <article
-      className={`post-card ${post.image ? '' : 'no-image'}`}
+      className={`post-card ${post.imageSharp ? '' : 'no-image'}`}
       css={PostCardStyles}
     >
-      {post.image && (
-        typeof post.image.childImageSharp !== 'undefined' ? (
+      {post.imageSharp && (
+        typeof post.imageSharp.childImageSharp !== 'undefined' ? (
         <Link className="post-card-image-link" css={PostCardImageLink} to={post.slug}>
           <PostCardImage className="post-card-image">
-            {post.image &&
-            post.image.childImageSharp &&
-              post.image.childImageSharp.fluid && (
+            {post.imageSharp &&
+            post.imageSharp.childImageSharp &&
+              post.imageSharp.childImageSharp.fluid && (
               <Img
                 alt={`${post.title} cover image`}
                 style={{ height: '100%' }}
-                fluid={post.image.childImageSharp.fluid}
+                fluid={post.imageSharp.childImageSharp.fluid}
               />
             )}
           </PostCardImage>

@@ -48,8 +48,8 @@ const navCss = css`
 `;
 
 const Pagination: React.FunctionComponent<PaginationProps> = ({ currentPage, numPages }) => {
-  const isFirst = currentPage === 1;
-  const isLast = currentPage === numPages;
+  const isFirst = currentPage === 1 || typeof currentPage === 'undefined';
+  const isLast = currentPage === numPages || typeof currentPage === 'undefined';
   const prevPage = currentPage - 1 === 1 ? '/' : (currentPage - 1).toString();
   const nextPage = (currentPage + 1).toString();
 

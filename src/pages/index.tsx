@@ -4,6 +4,7 @@ import { css } from '@emotion/core';
 import { jsx/*, css*/ } from '@emotion/core';
 import styled from '@emotion/styled';
 import Helmet from 'react-helmet';
+import Img from "gatsby-image"
 
 import Footer from '../components/Footer';
 import SiteNav from '../components/header/SiteNav';
@@ -25,7 +26,7 @@ import {
   SiteTitle,
 } from '../styles/shared';
 
-import { PageContext } from './post';
+import { PageContext } from '../templates/post';
 
 const HomePosts = css`
   @media (min-width: 795px) {
@@ -70,34 +71,37 @@ const HomePosts = css`
 `;
 
 export interface IndexProps {
+
   pageContext: {
-    currentPage: number;
-    numPages: number;
+    currentPage: number
+    numPages: number
   };
+
   data: {
-    logo: {
-      childImageSharp: {
-        fixed: any;
-      };
+    indexPage: {
+      edges: Array<{
+        node: PageContext;
+      }>;
     };
-    header: {
-      childImageSharp: {
-        fluid: any;
-      };
-    };
-    allMarkdownRemark: {
+    allPages: {
       edges: Array<{
         node: PageContext;
       }>;
     };
   };
+
 }
 
 const IndexPage: React.FC<IndexProps> = props => {
-  const width = props.data.header && props.data.header.childImageSharp.fluid.sizes.split(', ')[1].split('px')[0] || 0;
-  const height = String(Number(width) / (props.data.header && props.data.header.childImageSharp.fluid.aspectRatio || 0) );
+  const indexPageNode = props.data.indexPage.edges[0].node;
+  const allPages  = props.data.allPages;
 
-  console.log('data:', props.data);
+  const width = indexPageNode.header_imageSharp && indexPageNode.header_imageSharp.childImageSharp.fluid.sizes.split(', ')[1].split('px')[0] || 0;
+  const height = String(Number(width) / (indexPageNode.header_imageSharp && indexPageNode.header_imageSharp.childImageSharp.fluid.aspectRatio || 0) );
+
+  console.log('props:', props);
+  console.log('indexPageNode data:', indexPageNode);
+  console.log('allPages data:', allPages);
 
   return (
     <IndexLayout css={HomePosts}>
@@ -112,7 +116,7 @@ const IndexPage: React.FC<IndexProps> = props => {
         <meta property="og:url" content={config.siteUrl} />
         <meta
           property="og:image"
-          content={`${config.siteUrl}${props.data.header && props.data.header.childImageSharp.fluid.src}`}
+          content={`${config.siteUrl}${indexPageNode.header_imageSharp && indexPageNode.header_imageSharp.childImageSharp.fluid.src}`}
         />
         {config.facebook && <meta property="article:publisher" content={config.facebook} />}
         {config.googleSiteVerification && <meta name="google-site-verification" content={config.googleSiteVerification} />}
@@ -122,7 +126,7 @@ const IndexPage: React.FC<IndexProps> = props => {
         <meta name="twitter:url" content={config.siteUrl} />
         <meta
           name="twitter:image"
-          content={`${config.siteUrl}${props.data.header && props.data.header.childImageSharp.fluid.src}`}
+          content={`${config.siteUrl}${indexPageNode.header_imageSharp && indexPageNode.header_imageSharp.childImageSharp.fluid.src}`}
         />
         {config.twitter && (
           <meta
@@ -133,31 +137,41 @@ const IndexPage: React.FC<IndexProps> = props => {
         <meta property="og:image:width" content={width} />
         <meta property="og:image:height" content={height} />
       </Helmet>
+
       <Wrapper>
+
         <header
           css={[outer, SiteHeader]}
           style={{
-            backgroundImage: `url('${props.data.header && props.data.header.childImageSharp.fluid.src}')`,
+            backgroundImage: `url('${
+              indexPageNode.header_imageSharp
+                ? indexPageNode.header_imageSharp.childImageSharp.fluid.src
+                : indexPageNode.header_image
+            }')`,
           }}
         >
           <div css={inner}>
             <SiteHeaderContent>
               <SiteTitle>
-                {props.data.logo ? (
-                  <img
-                    style={{ maxHeight: '45px' }}
-                    src={props.data.logo && props.data.logo.childImageSharp.fixed.src}
-                    alt={config.title}
-                  />
-                ) : (
-                  config.title
-                )}
+                <img
+                  style={{ maxHeight: '45px' }}
+                  src={
+                    indexPageNode.header_logoSharp
+                      ? indexPageNode.header_logoSharp.childImageSharp.fixed.src
+                      : indexPageNode.header_logo
+                  }
+                  alt={indexPageNode.title}
+                />
+                <span>{ indexPageNode.title }</span>
               </SiteTitle>
-              <SiteDescription>{config.description}</SiteDescription>
+              <SiteDescription>
+                {indexPageNode.description}
+              </SiteDescription>
             </SiteHeaderContent>
             <SiteNav isHome />
           </div>
         </header>
+
         <main id="site-main" css={[SiteMain, outer]}>
           <div css={inner}>
             <div css={[PostFeed, PostFeedRaise]}>
@@ -171,15 +185,15 @@ const IndexPage: React.FC<IndexProps> = props => {
               {/*  );*/}
               {/*})}*/}
 
-              {props.data.allPages.edges.map((post, i) => {
+              {allPages.edges.map((post, i) => {
                 // filter out drafts in production
                 return (
                   // (post.node.frontmatter.draft !== true ||
                   //   process.env.NODE_ENV !== 'production') && (
-                    <PostCard
-                      key={post.node.slug}
-                      post={post.node}
-                    />
+                  <PostCard
+                    key={post.node.slug}
+                    post={post.node}
+                  />
                   // )
                 );
               })}
@@ -270,14 +284,49 @@ export default IndexPage;
 // `;
 export const query = graphql`
   {
-    home: allButterPage(filter: { slug: { eq: "homepage" } }) {
+    indexPage: allButterPage(filter: { page_type: { eq: "index" } }) {
       edges {
         node {
           slug
           headline
           seo_title
           title
+          description
           image
+          imageSharp {
+            childImageSharp {
+              # Specify a fixed image and fragment.
+              # The default width is 400 pixels
+              fixed {
+                ...GatsbyImageSharpFixed
+              }
+              fluid {
+                ...GatsbyImageSharpFluid
+              }
+            }
+          }
+          header_image
+          header_imageSharp {
+            childImageSharp {
+              fixed {
+                ...GatsbyImageSharpFixed
+              }
+              fluid {
+                ...GatsbyImageSharpFluid
+              }
+            }
+          }
+          header_logo
+          header_logoSharp {
+            childImageSharp {
+              fixed {
+                ...GatsbyImageSharpFixed
+              }
+              fluid {
+                ...GatsbyImageSharpFluid
+              }
+            }
+          }
           customer_logos {
             logo_image
           }
@@ -293,12 +342,12 @@ export const query = graphql`
         node {
           id
           slug
-#          facebook_open_graph_title
+          #          facebook_open_graph_title
           seo_title
           headline
           title
           image
-#          testimony
+          #          testimony
           customer_logos {
             logo_image
           }
@@ -306,21 +355,32 @@ export const query = graphql`
       }
     }
     allPages: allButterPage(
-      filter: {  }
+      filter: { page_type: { eq: "*" } }
     ) {
       edges {
         node {
           id
           slug
-#          facebook_open_graph_title
+          #          facebook_open_graph_title
           seo_title
           headline
           title
           image
-#          testimony
+          imageSharp {
+            childImageSharp {
+              fixed {
+                ...GatsbyImageSharpFixed
+              }
+              fluid {
+                ...GatsbyImageSharpFluid
+              }
+            }
+          }
+          #          testimony
           customer_logos {
             logo_image
           }
+          header_logo
         }
       }
     }

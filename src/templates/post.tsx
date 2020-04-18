@@ -180,30 +180,46 @@ export interface PageContext {
   excerpt: string;
   timeToRead: number;
   // fields: {
-    slug: string;
+  slug: string;
   // };
   // frontmatter: {
-    image: string
-    // image: ++++{
-    //   childImageSharp: {
-    //     fluid: any;
-    //   };
-    // };
-    title: string;
-    date: string;
-    draft?: boolean;
-    tags: string[];
-    author: {
-      id: string;
-      bio: string;
-      avatar: {
-        children: Array<{
-          fixed: {
-            src: string;
-          };
-        }>;
-      };
+  image: string
+  imageSharp: {
+    childImageSharp: {
+      fixed: any
+      fluid: any;
     };
+  };
+  header_logo: string;
+  header_logoSharp: {
+    childImageSharp: {
+      fluid: any
+      fixed: any
+    },
+  },
+  header_image: string;
+  header_imageSharp: {
+    childImageSharp: {
+      fluid: any
+      fixed: any
+    }
+  }
+  title: string;
+  description: string;
+  date: string;
+  draft?: boolean;
+  tags: string[];
+  author: {
+    id: string;
+    bio: string;
+    avatar: {
+      children: Array<{
+        fixed: {
+          src: string;
+        };
+      }>;
+    };
+  };
   // };
 }
 
@@ -275,13 +291,13 @@ const PageTemplate: React.FC<PageTemplateProps> = props => {
                     {post.frontmatter.userDate}
                   </PostFullMetaDate>
                   {post.frontmatter.tags &&
-                    post.frontmatter.tags.length > 0 && (
-                      <>
-                        <DateDivider>/</DateDivider>
-                        <Link to={`/tags/${_.kebabCase(post.frontmatter.tags[0])}/`}>
-                          {post.frontmatter.tags[0]}
-                        </Link>
-                      </>
+                  post.frontmatter.tags.length > 0 && (
+                    <>
+                      <DateDivider>/</DateDivider>
+                      <Link to={`/tags/${_.kebabCase(post.frontmatter.tags[0])}/`}>
+                        {post.frontmatter.tags[0]}
+                      </Link>
+                    </>
                   )}
                 </PostFullMeta>
                 <PostFullTitle>{post.frontmatter.title}</PostFullTitle>
