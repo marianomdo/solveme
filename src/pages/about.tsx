@@ -10,7 +10,7 @@ import { PostFullContent } from '../components/PostContent';
 import Footer from '../components/Footer';
 import Helmet from 'react-helmet';
 
-const PageTemplate = css`
+export const PageTemplate = css`
   .site-main {
     background: #fff;
     padding-bottom: 4vw;

@@ -16,6 +16,7 @@
 //  `
 //  createTypes(typeDefs)
 //}
+const path = require(`path`);
 const { createRemoteFileNode } = require("gatsby-source-filesystem")
 
 
@@ -52,11 +53,34 @@ exports.onCreateNode = async ({
                                 cache,
                                 createNodeId,
                               }) => {
-  console.log('node.internal.type:', node.internal.type, 'slug:', node.slug);
+
+  let a = [ 'NODE', node.internal.type ];
+  let gppcCount = 0;
+  switch (node.internal.type) {
+    case 'Site':         a.push(node.host, node.port); break;
+    case 'SitePlugin':   a.push(node.packageJson.name);
+    if (node.packageJson.name === 'gatsby-plugin-page-creator') {
+      //console.log(node);
+      a.push(++gppcCount);
+    }
+    break;
+    case 'SiteBuildMetadata': a.push(node.buildTime); break;
+    case 'SitePage':     a.push(node.path, node.InternalComponentName); break;
+    case 'Directory':    a.push(node.relativeDirectory); break;
+    case 'File':         a.push(node.base); break;
+    case 'ImageSharp':   a.push(node.internal.type); break;
+    case 'butter__PAGE': a.push(node.page_type, node.slug); break;
+    case 'butter__POST': a.push(node.url); break;
+    default:
+      console.log(node);
+      break;
+  }
+  console.log(`[${a.join(':')}]`);
+
   // For all MarkdownRemark nodes that have a featured image url, call createRemoteFileNode
 
   const tryCreateImageSharp = async (node, name) => {
-    console.log('name:', name, 'name[name]:', name[name]);
+    //console.log('  tryCreateImageSharp: name:', name, 'name[name]:', name[name]);
     if (
       //node.internal.type === "butter__POST" &&
       node.internal.type === "butter__PAGE" &&
@@ -64,7 +88,7 @@ exports.onCreateNode = async ({
       typeof node[name] !== 'undefined' &&
       node[name] !== null
     ) {
-      console.log('node.slug:', node.slug);
+      //console.log('  tryCreateImageSharp: node.slug:', node.slug);
 
       let fileNode = await createRemoteFileNode({
         //url: node.frontmatter.featuredImgUrl, // string that points to the URL of the image
@@ -75,7 +99,7 @@ exports.onCreateNode = async ({
         cache, // Gatsby's cache
         store, // Gatsby's redux store
       })
-      console.log('fileNode.url:', fileNode.url);
+      //console.log('  tryCreateImageSharp: fileNode.url:', fileNode.url);
 
       // if the file was created, attach the new node to the parent node
       if (fileNode) {
@@ -88,4 +112,108 @@ exports.onCreateNode = async ({
   await tryCreateImageSharp(node, 'image');
   await tryCreateImageSharp(node, 'header_image');
   await tryCreateImageSharp(node, 'header_logo');
+}
+
+
+
+exports.createPages = async ({ graphql, actions }) => {
+  const { createPage } = actions
+
+  // Blog post template
+  const blogPost = path.resolve(`./src/templates/post.tsx`)
+
+  //customer case study template
+  const customerCaseStudy = path.resolve(
+    `./src/templates/generic-page.tsx`
+  )
+
+  let posts
+  try {
+    posts = await graphql(`
+      {
+        allButterPost {
+          edges {
+            node {
+              id
+              seo_title
+              slug
+              categories {
+                name
+                slug
+              }
+              author {
+                first_name
+                last_name
+                email
+                slug
+                profile_image
+              }
+              body
+            }
+          }
+        }
+      }
+    `)
+  } catch (error) {
+    console.error(`Error Running Querying Posts`, error)
+  }
+
+  posts = posts.data.allButterPost.edges
+  console.log(`Found ${posts.length} post[s]`);
+
+  posts.forEach((post, index) => {
+    const previous = index === posts.length - 1 ? null : posts[index + 1].node
+    const next = index === 0 ? null : posts[index - 1].node
+    const postPath = `/posts/${post.node.slug}`
+
+    // Create blog posts pages.
+    createPage({
+      path: postPath,
+      component: blogPost,
+      context: {
+        slug: post.node.slug,
+        previous,
+        next,
+      },
+    })
+    console.log(`[POST:${postPath}]`);
+  })
+
+  // Fetch Customer Case study pages
+  let pages
+  try {
+    pages = await graphql(`
+      {
+        allButterPage(filter: { page_type: { eq: "*" } }) {
+          edges {
+            node {
+              id
+              slug
+              # facebook_open_graph_title
+              seo_title
+              title
+              description
+              header_logo
+            }
+          }
+        }
+      }
+    `)
+  } catch (error) {
+    console.log(`Error Running Querying Pages`, error)
+  }
+  console.log(`Found ${posts.length} page[s]`);
+
+  //Create Customer Case study pages
+  pages.data.allButterPage.edges.forEach(page => {
+    const postPath = `/pages/${page.node.slug}`
+    createPage({
+      path: postPath,
+      component: customerCaseStudy,
+      context: {
+        slug: page.node.slug,
+      },
+    })
+    console.log(`[PAGE:${postPath}]`);
+  })
 }

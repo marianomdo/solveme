@@ -93,6 +93,7 @@ export interface IndexProps {
 }
 
 const IndexPage: React.FC<IndexProps> = props => {
+  const siteMetadata = props.data.site.siteMetadata;
   const indexPageNode = props.data.indexPage.edges[0].node;
   const allPages  = props.data.allPages;
 
@@ -107,11 +108,11 @@ const IndexPage: React.FC<IndexProps> = props => {
     <IndexLayout css={HomePosts}>
       <Helmet>
         <html lang={config.lang} />
-        <title>{config.title}</title>
+        <title>{siteMetadata.title}</title>
         <meta name="description" content={config.description} />
-        <meta property="og:site_name" content={config.title} />
+        <meta property="og:site_name" content={siteMetadata.title} />
         <meta property="og:type" content="website" />
-        <meta property="og:title" content={config.title} />
+        <meta property="og:title" content={siteMetadata.title} />
         <meta property="og:description" content={config.description} />
         <meta property="og:url" content={config.siteUrl} />
         <meta
@@ -121,7 +122,7 @@ const IndexPage: React.FC<IndexProps> = props => {
         {config.facebook && <meta property="article:publisher" content={config.facebook} />}
         {config.googleSiteVerification && <meta name="google-site-verification" content={config.googleSiteVerification} />}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={config.title} />
+        <meta name="twitter:title" content={siteMetadata.title} />
         <meta name="twitter:description" content={config.description} />
         <meta name="twitter:url" content={config.siteUrl} />
         <meta
@@ -160,9 +161,9 @@ const IndexPage: React.FC<IndexProps> = props => {
                       ? indexPageNode.header_logoSharp.childImageSharp.fixed.src
                       : indexPageNode.header_logo
                   }
-                  alt={indexPageNode.title}
+                  alt={siteMetadata.title}
                 />
-                <span>{ indexPageNode.title }</span>
+                <span>{ siteMetadata.title }</span>
               </SiteTitle>
               <SiteDescription>
                 {indexPageNode.description}
@@ -284,6 +285,11 @@ export default IndexPage;
 // `;
 export const query = graphql`
   {
+    site {
+      siteMetadata {
+        title
+      }
+    }
     indexPage: allButterPage(filter: { page_type: { eq: "index" } }) {
       edges {
         node {

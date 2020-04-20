@@ -83,6 +83,14 @@ export const PostFullTitle = styled.h1`
   }
 `;
 
+export const PostFullDescription = styled.h2`
+  margin: 0;
+  color: ${setLightness('0.05', colors.darkgrey)};
+  @media (max-width: 500px) {
+    font-size: 2.9rem;
+  }
+`;
+
 const PostFullImage = styled.figure`
   margin: 0 -10vw -165px;
   height: 800px;
@@ -224,7 +232,9 @@ export interface PageContext {
 }
 
 const PageTemplate: React.FC<PageTemplateProps> = props => {
-  const post = props.data.allPosts;
+  console.log('PageTemplate: props:', props)
+
+  const post = props.data.allButterPost;
   let width = '';
   let height = '';
   if (post.image && post.image.childImageSharp) {
@@ -241,11 +251,11 @@ const PageTemplate: React.FC<PageTemplateProps> = props => {
         <meta name="description" content={post.excerpt} />
         <meta property="og:site_name" content={config.title} />
         <meta property="og:type" content="article" />
-        <meta property="og:title" content={post.frontmatter.title} />
-        <meta property="og:description" content={post.excerpt} />
+        <meta property="og:title" content={post.title} />
+        <meta property="og:description" content={post.description} />
         <meta property="og:url" content={config.siteUrl + props.pathContext.slug} />
-        {(post.frontmatter.image && post.image.childImageSharp) && (
-          <meta property="og:image" content={`${config.siteUrl}${post.frontmatter.image.childImageSharp.fluid.src}`} />
+        {(post.image && post.image.childImageSharp) && (
+          <meta property="og:image" content={`${config.siteUrl}${post.image.childImageSharp.fluid.src}`} />
         )}
         <meta property="article:published_time" content={post.frontmatter.date} />
         {/* not sure if modified time possible */}
@@ -260,13 +270,13 @@ const PageTemplate: React.FC<PageTemplateProps> = props => {
         <meta name="twitter:title" content={post.frontmatter.title} />
         <meta name="twitter:description" content={post.excerpt} />
         <meta name="twitter:url" content={config.siteUrl + props.pathContext.slug} />
-        {(post.frontmatter.image && post.frontmatter.image.childImageSharp) && (
-          <meta name="twitter:image" content={`${config.siteUrl}${post.frontmatter.image.childImageSharp.fluid.src}`} />
+        {(post.image && post.image.childImageSharp) && (
+          <meta name="twitter:image" content={`${config.siteUrl}${post.image.childImageSharp.fluid.src}`} />
         )}
         <meta name="twitter:label1" content="Written by" />
-        <meta name="twitter:data1" content={post.frontmatter.author.id} />
+        <meta name="twitter:data1" content={post.author.id} />
         <meta name="twitter:label2" content="Filed under" />
-        {post.frontmatter.tags && <meta name="twitter:data2" content={post.frontmatter.tags[0]} />}
+        {post.tags && <meta name="twitter:data2" content={post.tags[0]} />}
         {config.twitter && <meta name="twitter:site" content={`@${config.twitter.split('https://twitter.com/')[1]}`} />}
         {config.twitter && <meta
           name="twitter:creator"
@@ -284,30 +294,30 @@ const PageTemplate: React.FC<PageTemplateProps> = props => {
         <main id="site-main" className="site-main" css={[SiteMain, outer]}>
           <div css={inner}>
             {/* TODO: no-image css tag? */}
-            <article css={[PostFull, !post.frontmatter.image && NoImage]}>
+            <article css={[PostFull, !post.image && NoImage]}>
               <PostFullHeader>
                 <PostFullMeta>
-                  <PostFullMetaDate dateTime={post.frontmatter.date}>
-                    {post.frontmatter.userDate}
+                  <PostFullMetaDate dateTime={post.date}>
+                    {post.userDate}
                   </PostFullMetaDate>
-                  {post.frontmatter.tags &&
-                  post.frontmatter.tags.length > 0 && (
+                  {post.tags &&
+                  post.tags.length > 0 && (
                     <>
                       <DateDivider>/</DateDivider>
-                      <Link to={`/tags/${_.kebabCase(post.frontmatter.tags[0])}/`}>
-                        {post.frontmatter.tags[0]}
+                      <Link to={`/tags/${_.kebabCase(post.tags[0])}/`}>
+                        {post.tags[0]}
                       </Link>
                     </>
                   )}
                 </PostFullMeta>
-                <PostFullTitle>{post.frontmatter.title}</PostFullTitle>
+                <PostFullTitle>{post.title}</PostFullTitle>
               </PostFullHeader>
 
-              {(post.frontmatter.image && post.frontmatter.image.childImageSharp) && (
+              {(post.image && post.image.childImageSharp) && (
                 <PostFullImage>
                   <Img
                     style={{ height: '100%' }}
-                    fluid={post.frontmatter.image.childImageSharp.fluid}
+                    fluid={post.image.childImageSharp.fluid}
                   />
                 </PostFullImage>
               )}
@@ -317,8 +327,8 @@ const PageTemplate: React.FC<PageTemplateProps> = props => {
               {config.showSubscribe && <Subscribe title={config.title} />}
 
               <PostFullFooter>
-                <AuthorCard author={post.frontmatter.author} />
-                <PostFullFooterRight authorId={post.frontmatter.author.id} />
+                <AuthorCard author={post.author} />
+                <PostFullFooterRight authorId={post.author.id} />
               </PostFullFooter>
             </article>
           </div>
@@ -329,7 +339,7 @@ const PageTemplate: React.FC<PageTemplateProps> = props => {
           <div css={inner}>
             <ReadNextFeed>
               {props.data.relatedPosts && (
-                <ReadNextCard tags={post.frontmatter.tags} relatedPosts={props.data.relatedPosts} />
+                <ReadNextCard tags={post.tags} relatedPosts={props.data.relatedPosts} />
               )}
 
               {props.pageContext.prev && <PostCard post={props.pageContext.prev} />}
@@ -344,6 +354,68 @@ const PageTemplate: React.FC<PageTemplateProps> = props => {
 };
 
 export default PageTemplate;
+
+export const query = graphql`
+  query
+#  (
+#    $slug: String,
+#    $primaryTag: String
+#  ) 
+  {
+    allButterPost {
+      edges {
+        node {
+          id
+          seo_title
+          slug
+          categories {
+            name
+            slug
+          }
+          author {
+            first_name
+            last_name
+            email
+            slug
+            profile_image
+          }
+          body
+        }
+      }
+    }
+    
+#    allButterPage(filter: { slug: { eq: $slug } }) {
+      
+#    relatedPosts: allButterPost(
+#      filter: { 
+#        tags: [$primaryTag],
+##        tags: { in: [$primaryTag] },
+##        draft: { ne: true }
+#      }
+#      limit: 3
+#    ) {
+#      edges {
+#        node {
+#          id
+#          seo_title
+#          slug
+#          categories {
+#            name
+#            slug
+#          }
+#          author {
+#            first_name
+#            last_name
+#            email
+#            slug
+#            profile_image
+#          }
+#          body
+#        }
+#      }
+#    }
+  }
+`
 
 // export const query = graphql`
 //   query($slug: String, $primaryTag: String) {

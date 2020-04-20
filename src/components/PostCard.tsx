@@ -200,6 +200,8 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
   console.log('post:', post);
 
+  const path = `/pages/${post.slug}`
+
   return (
     <article
       className={`post-card ${post.imageSharp ? '' : 'no-image'}`}
@@ -207,7 +209,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     >
       {post.imageSharp && (
         typeof post.imageSharp.childImageSharp !== 'undefined' ? (
-        <Link className="post-card-image-link" css={PostCardImageLink} to={post.slug}>
+        <Link className="post-card-image-link" css={PostCardImageLink} to={path}>
           <PostCardImage className="post-card-image">
             {post.imageSharp &&
             post.imageSharp.childImageSharp &&
@@ -222,7 +224,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         </Link>
       )
       : (
-        <Link className="post-card-image-link" css={PostCardImageLink} to={post.slug}>
+        <Link className="post-card-image-link" css={PostCardImageLink} to={path}>
           <PostCardImage className="post-card-image">
             <img
               src={post.image}
@@ -235,7 +237,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
       )}
       <PostCardContent className="post-card-content">
-        <Link className="post-card-content-link" css={PostCardContentLink} to={post.slug}>
+        <Link className="post-card-content-link" css={PostCardContentLink} to={path}>
           <header className="post-card-header">
             {post.tags && <PostCardTags>{post.tags[0]}</PostCardTags>}
             <PostCardTitle>{post.title}</PostCardTitle>
