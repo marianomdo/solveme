@@ -140,7 +140,7 @@ interface PageTemplateProps {
       htmlAst: any;
       excerpt: string;
       timeToRead: string;
-      frontmatter: {
+      // frontmatter: {
         title: string;
         date: string;
         userDate: string;
@@ -161,16 +161,16 @@ interface PageTemplateProps {
             }>;
           };
         };
-      };
+      // };
     };
     relatedPosts: {
       totalCount: number;
       edges: Array<{
         node: {
           timeToRead: number;
-          frontmatter: {
+          // frontmatter: {
             title: string;
-          };
+          // };
           fields: {
             slug: string;
           };
@@ -257,26 +257,26 @@ const PageTemplate: React.FC<PageTemplateProps> = props => {
         {(post.image && post.image.childImageSharp) && (
           <meta property="og:image" content={`${config.siteUrl}${post.image.childImageSharp.fluid.src}`} />
         )}
-        <meta property="article:published_time" content={post.frontmatter.date} />
+        <meta property="article:published_time" content={post.date} />
         {/* not sure if modified time possible */}
         {/* <meta property="article:modified_time" content="2018-08-20T15:12:00.000Z" /> */}
-        {post.frontmatter.tags && (
-          <meta property="article:tag" content={post.frontmatter.tags[0]} />
+        {post.tags && (
+          <meta property="article:tag" content={post.tags[0]} />
         )}
 
         {config.facebook && <meta property="article:publisher" content={config.facebook} />}
         {config.facebook && <meta property="article:author" content={config.facebook} />}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={post.frontmatter.title} />
+        <meta name="twitter:title" content={post.title} />
         <meta name="twitter:description" content={post.excerpt} />
         <meta name="twitter:url" content={config.siteUrl + props.pathContext.slug} />
         {(post.image && post.image.childImageSharp) && (
           <meta name="twitter:image" content={`${config.siteUrl}${post.image.childImageSharp.fluid.src}`} />
         )}
         <meta name="twitter:label1" content="Written by" />
-        <meta name="twitter:data1" content={post.author.id} />
+        <meta name="twitter:data1" content={post.author && post.author.id} />
         <meta name="twitter:label2" content="Filed under" />
-        {post.tags && <meta name="twitter:data2" content={post.tags[0]} />}
+        {post.tags && <meta name="twitter:data2" content={post.tags && post.tags[0]} />}
         {config.twitter && <meta name="twitter:site" content={`@${config.twitter.split('https://twitter.com/')[1]}`} />}
         {config.twitter && <meta
           name="twitter:creator"
@@ -321,14 +321,22 @@ const PageTemplate: React.FC<PageTemplateProps> = props => {
                   />
                 </PostFullImage>
               )}
-              <PostContent htmlAst={post.htmlAst} />
+              {/*<PostContent htmlAst={post.htmlAst} />*/}
+
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: post.html,
+                }}
+              ></div>
+
+
 
               {/* The big email subscribe modal content */}
               {config.showSubscribe && <Subscribe title={config.title} />}
 
               <PostFullFooter>
                 <AuthorCard author={post.author} />
-                <PostFullFooterRight authorId={post.author.id} />
+                <PostFullFooterRight authorId={post.author && post.author.id} />
               </PostFullFooter>
             </article>
           </div>
