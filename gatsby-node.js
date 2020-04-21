@@ -30,6 +30,10 @@ exports.createSchemaCustomization = ({ actions }) => {
       header_imageSharp: File @link(from: "header_imageSharp___NODE")
       header_logo: String
       header_logoSharp: File @link(from: "header_logoSharp___NODE")
+    }  
+    type butter__POST implements Node {
+      featured_image: String
+      featured_imageSharp: File @link(from: "featured_imageSharp___NODE")
     }
   `)
   //createTypes(`
@@ -80,15 +84,18 @@ exports.onCreateNode = async ({
   // For all MarkdownRemark nodes that have a featured image url, call createRemoteFileNode
 
   const tryCreateImageSharp = async (node, name) => {
-    //console.log('  tryCreateImageSharp: name:', name, 'name[name]:', name[name]);
+    // console.log('  tryCreateImageSharp: name:', name, 'node[name]:', node[name]);
+    // if (node.internal.type === "butter__POST") {
+      // console.log(node);
+    // }
+
     if (
-      //node.internal.type === "butter__POST" &&
-      node.internal.type === "butter__PAGE" &&
+       [ "butter__POST", "butter__PAGE"].indexOf(node.internal.type)>=0 &&
       //  node.internal.type === "MarkdownRemark" &&
       typeof node[name] !== 'undefined' &&
       node[name] !== null
     ) {
-      //console.log('  tryCreateImageSharp: node.slug:', node.slug);
+      // console.log(`  tryCreateImageSharp: [${node.internal.type}] node.slug:`, node.slug);
 
       let fileNode = await createRemoteFileNode({
         //url: node.frontmatter.featuredImgUrl, // string that points to the URL of the image
@@ -99,7 +106,7 @@ exports.onCreateNode = async ({
         cache, // Gatsby's cache
         store, // Gatsby's redux store
       })
-      //console.log('  tryCreateImageSharp: fileNode.url:', fileNode.url);
+      // console.log(`  >> tryCreateImageSharp: [${node.internal.type}] fileNode.url:`, fileNode.url);
 
       // if the file was created, attach the new node to the parent node
       if (fileNode) {
@@ -112,6 +119,7 @@ exports.onCreateNode = async ({
   await tryCreateImageSharp(node, 'image');
   await tryCreateImageSharp(node, 'header_image');
   await tryCreateImageSharp(node, 'header_logo');
+  await tryCreateImageSharp(node, 'featured_image');
 }
 
 
@@ -192,7 +200,10 @@ exports.createPages = async ({ graphql, actions }) => {
               # facebook_open_graph_title
               seo_title
               title
+              summary
+              body
               description
+              header_image
               header_logo
             }
           }

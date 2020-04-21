@@ -91,15 +91,16 @@ export const PostFullDescription = styled.h2`
   }
 `;
 
-const PostFullImage = styled.figure`
-  margin: 0 -10vw -165px;
+export const PostFullImage = styled.figure`
+  // margin: 0 -10vw -165px;
+  margin: 0 -10vw;// -165px;
   height: 800px;
   background: ${colors.lightgrey} center center;
   background-size: cover;
   border-radius: 5px;
 
   @media (max-width: 1170px) {
-    margin: 0 -4vw -100px;
+    margin: 0 -4vw;// -100px;
     height: 600px;
     border-radius: 0;
   }
@@ -149,7 +150,10 @@ interface PageTemplateProps {
             fluid: any;
           };
         };
-        tags: string[];
+        tags: Array<{
+          name: string;
+          slug: string;
+        }>;
         author: {
           id: string;
           bio: string;
@@ -163,6 +167,21 @@ interface PageTemplateProps {
         };
       // };
     };
+    allButterPost: {
+      edges: Array<{
+        node: {
+          title: string;
+          featured_image: string;
+          featured_imageSharp: {
+            childImageSharp: {
+              fluid: any
+              fixed: any
+            }
+          };
+          featured_image_alt
+        }
+      }>;
+    }
     relatedPosts: {
       totalCount: number;
       edges: Array<{
@@ -216,8 +235,11 @@ export interface PageContext {
   description: string;
   date: string;
   draft?: boolean;
-  tags: string[];
-  author: {
+  tags: Array<{
+    name: string;
+    slug: string;
+  }>;
+author: {
     id: string;
     bio: string;
     avatar: {
@@ -234,12 +256,12 @@ export interface PageContext {
 const PageTemplate: React.FC<PageTemplateProps> = props => {
   console.log('PageTemplate: props:', props)
 
-  const post = props.data.allButterPost;
+  const post = props.data.allButterPost.edges[0].node;
   let width = '';
   let height = '';
-  if (post.image && post.image.childImageSharp) {
-    width = post.image.childImageSharp.fluid.sizes.split(', ')[1].split('px')[0];
-    height = String(Number(width) / post.image.childImageSharp.fluid.aspectRatio);
+  if (post.featured_imageSharp && post.featured_imageSharp.childImageSharp) {
+    width = post.featured_imageSharp.childImageSharp.fluid.sizes.split(', ')[1].split('px')[0];
+    height = String(Number(width) / post.featured_imageSharp.childImageSharp.fluid.aspectRatio);
   }
 
   return (
@@ -248,35 +270,35 @@ const PageTemplate: React.FC<PageTemplateProps> = props => {
         <html lang={config.lang} />
         <title>{post.title}</title>
 
-        <meta name="description" content={post.excerpt} />
+        <meta name="description" content={post.summary} />
         <meta property="og:site_name" content={config.title} />
         <meta property="og:type" content="article" />
         <meta property="og:title" content={post.title} />
-        <meta property="og:description" content={post.description} />
+        <meta property="og:description" content={post.summary} />
         <meta property="og:url" content={config.siteUrl + props.pathContext.slug} />
-        {(post.image && post.image.childImageSharp) && (
-          <meta property="og:image" content={`${config.siteUrl}${post.image.childImageSharp.fluid.src}`} />
+        {(post.featured_imageSharp && post.featured_imageSharp.childImageSharp) && (
+          <meta property="og:image" content={`${config.siteUrl}${post.featured_imageSharp.childImageSharp.fluid.src}`} />
         )}
         <meta property="article:published_time" content={post.date} />
         {/* not sure if modified time possible */}
         {/* <meta property="article:modified_time" content="2018-08-20T15:12:00.000Z" /> */}
         {post.tags && (
-          <meta property="article:tag" content={post.tags[0]} />
+          <meta property="article:tag" content={post.tags[0].name} />
         )}
 
         {config.facebook && <meta property="article:publisher" content={config.facebook} />}
         {config.facebook && <meta property="article:author" content={config.facebook} />}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={post.title} />
-        <meta name="twitter:description" content={post.excerpt} />
+        <meta name="twitter:description" content={post.summary} />
         <meta name="twitter:url" content={config.siteUrl + props.pathContext.slug} />
-        {(post.image && post.image.childImageSharp) && (
-          <meta name="twitter:image" content={`${config.siteUrl}${post.image.childImageSharp.fluid.src}`} />
+        {(post.featured_imageSharp && post.featured_imageSharp.childImageSharp) && (
+          <meta name="twitter:image" content={`${config.siteUrl}${post.featured_imageSharp.childImageSharp.fluid.src}`} />
         )}
         <meta name="twitter:label1" content="Written by" />
         <meta name="twitter:data1" content={post.author && post.author.id} />
         <meta name="twitter:label2" content="Filed under" />
-        {post.tags && <meta name="twitter:data2" content={post.tags && post.tags[0]} />}
+        {post.tags && <meta name="twitter:data2" content={post.tags && post.tags[0].name} />}
         {config.twitter && <meta name="twitter:site" content={`@${config.twitter.split('https://twitter.com/')[1]}`} />}
         {config.twitter && <meta
           name="twitter:creator"
@@ -294,41 +316,55 @@ const PageTemplate: React.FC<PageTemplateProps> = props => {
         <main id="site-main" className="site-main" css={[SiteMain, outer]}>
           <div css={inner}>
             {/* TODO: no-image css tag? */}
-            <article css={[PostFull, !post.image && NoImage]}>
+            <article css={[PostFull, !post.featured_imageSharp && NoImage]}>
               <PostFullHeader>
                 <PostFullMeta>
                   <PostFullMetaDate dateTime={post.date}>
-                    {post.userDate}
+                    { post.userDate }
                   </PostFullMetaDate>
-                  {post.tags &&
-                  post.tags.length > 0 && (
-                    <>
+                  {post.tags && post.tags.length > 0 && (
+                    <div>
                       <DateDivider>/</DateDivider>
-                      <Link to={`/tags/${_.kebabCase(post.tags[0])}/`}>
-                        {post.tags[0]}
+                      <Link to={`/tags/${_.kebabCase(post.tags[0].slug)}/`}>
+                        {post.tags[0].name}
                       </Link>
-                    </>
+                    </div>
                   )}
                 </PostFullMeta>
-                <PostFullTitle>{post.title}</PostFullTitle>
+                <PostFullTitle>
+                  {post.title}
+                </PostFullTitle>
+                <PostFullDescription>
+                  {post.summary}
+                </PostFullDescription>
               </PostFullHeader>
 
-              {(post.image && post.image.childImageSharp) && (
+              {(post.featured_imageSharp && post.featured_imageSharp.childImageSharp)  &&
+               (
                 <PostFullImage>
                   <Img
                     style={{ height: '100%' }}
-                    fluid={post.image.childImageSharp.fluid}
+                    fluid={post.featured_imageSharp.childImageSharp.fluid}
+                    alt={post.featured_image_alt}
                   />
                 </PostFullImage>
-              )}
+              )
+              }
+              {/* : (
+                <PostFullImage>
+                <Img 
+                  fixed={{ src: post.featured_image }} 
+                />
+                </PostFullImage>
+              )
+            } */}
               {/*<PostContent htmlAst={post.htmlAst} />*/}
 
               <div
-                dangerouslySetInnerHTML={{
-                  __html: post.html,
-                }}
+                key={`body`}
+                id="___gatsby"
+                dangerouslySetInnerHTML={{ __html: post.body, }}
               ></div>
-
 
 
               {/* The big email subscribe modal content */}
@@ -387,7 +423,25 @@ export const query = graphql`
             slug
             profile_image
           }
-          body
+          featured_imageSharp {
+            childImageSharp {
+              fixed {
+                ...GatsbyImageSharpFixed
+              }
+              fluid {
+                ...GatsbyImageSharpFluid
+              }
+            }
+          }
+         body
+         tags {
+           name
+           slug
+        }
+         categories {
+           name
+           slug
+         }
         }
       }
     }

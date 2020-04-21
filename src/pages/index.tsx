@@ -108,7 +108,7 @@ const IndexPage: React.FC<IndexProps> = props => {
     <IndexLayout css={HomePosts}>
       <Helmet>
         <html lang={config.lang} />
-        <title>{siteMetadata.title}</title>
+        <title>{indexPageNode.title}</title>
         <meta name="description" content={config.description} />
         <meta property="og:site_name" content={siteMetadata.title} />
         <meta property="og:type" content="website" />
@@ -161,9 +161,9 @@ const IndexPage: React.FC<IndexProps> = props => {
                       ? indexPageNode.header_logoSharp.childImageSharp.fixed.src
                       : indexPageNode.header_logo
                   }
-                  alt={siteMetadata.title}
+                  alt={indexPageNode.title}
                 />
-                <span>{ siteMetadata.title }</span>
+                <span>{ indexPageNode.title }</span>
               </SiteTitle>
               <SiteDescription>
                 {indexPageNode.description}
